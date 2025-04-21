@@ -27,9 +27,3 @@ Reverse engineering can definitely be intimidating so we have a simple [RE101](.
 
 * Instead of the dynamic analysis above, we could have also continued our static analysis by studying the assembly code we produced earlier. In particular, we can observe that the code is moving a pointer to the 'flag' variable into the EDI register in the first line. It then 'moves' a series of byte-constants into the memory location to which EDI points, 'incrementing' EDI in between each move. The final three lines in '\_exit' execute a Linux system call to 'exit', but that is relevant for this problem.
 * When doing reverse engineering of x86 and x86-64 programs, Intel's [instruction set reference](https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf) can be very helpful. It can be intimidating to look at, but looking up the assembly instruction in this document will tell you exactly what it does.
-
-
-### Write-up
-
-- [Video Walk-through by Tim Nosco](https://www.youtube.com/watch?v=9dQFM5O4KFk&list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG)
-- [Write-up by starkindustries](https://github.com/starkindustries/CyberStakes2020#reverse-engineering-101---points-25)
