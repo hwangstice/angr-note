@@ -79,11 +79,11 @@ if byte_length >= 60:
 ### All input is in string.printable
 ```
 import string
-for i in range(byte_length):
-    initial_state.solver.add(
+for i in range(USER_DATA_LENGTH):
+    s.solver.add(
         claripy.Or(*(
-            input_data.get_byte(i) == j
-            for j in string.printable
+            user_data.get_byte(i) == x 
+            for x in printable.encode('utf-8')  
         ))
     )
 ```
@@ -116,7 +116,7 @@ sm = proj.factory.simulation_manager(initial_state, veritesting=True)
 ```
 # sm.run()
 
-# flag_locate = p.loader.find_sybol("win_func").rebased_addr
+# flag_locate = p.loader.find_symbol("win_func").rebased_addr
 # sm.explore(find=flag_locate, avoid=0x00000)
 
 # Can also have lists for arguments
