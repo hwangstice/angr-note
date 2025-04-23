@@ -25,8 +25,6 @@ pypy3 -m pip install angr
 conda install -c conda-forge ipython
 ```
 
----
-
 ## Running ANGR
 
 To run an `angr` script, activate the environment and execute your script with `pypy3`:
@@ -192,8 +190,6 @@ if sm.found:
     print(f"Stdin: {found.posix.stdin.concretize()}")
     print(f"Stdout: {found.posix.stdout.concretize()}")
 ```
-
----
 
 ## Optimization Tips
 
