@@ -4,40 +4,40 @@
 >[!NOTE]
 >Place this and binary in ./files/
 
-```
+```shell
 sudo docker run -v "$(pwd)"/files:/mnt -it angr/angr
 ```
 
 ### https://docs.angr.io/examples
 ### https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG
 
-```
+```shell
 import angr
 import claripy
 import sys
 import logging
 
-PROGRAM = "./crackme1"
+PROGRAM = "./<program-name>"
 ```
 
 ## Change logging level to see where we get stuck 
-```
+```shell
 logging.getLogger("angr").setLevel(logging.INFO)
 ```
 
 ## Project to wrap the EXE. Maybe don't want to go into SO code
 ### https://docs.angr.io/built-in-analyses/cfg#shared-libraries
 
-```
+```shell
 proj = angr.Project(PROGRAM)
 proj = angr.Project(PROGRAM, load_options={"auto_load_libs": False})
 ```
 
 ## Creating a symbolic variable for input
 
-```
-byte_length = 32
-input_data = claripy.BVS("input_data", byte_length * 8)
+```shell
+USER_DATA_LENGTH = 32
+user_data = claripy.BVS("user_data", USER_DATA_LENGTH * 8)
 ```
 
 ## Create a state for the simulation manager
@@ -45,22 +45,22 @@ input_data = claripy.BVS("input_data", byte_length * 8)
 
 ### stdin
 
-```
-initial_state = proj.factory.entry_state(stdin=input_data) 
+```shell
+initial_state = proj.factory.entry_state(stdin=user_data) 
 ```
 
 ### argv1
 
-```
-initial_state = proj.factory.entry_state(args=[PROGRAM, input_data]) 
-initial_state = proj.factory.entry_state(args=[PROGRAM, input_data], add_options={angr.options.LAZY_SOLVES})
-initial_state = proj.factory.entry_state(args=[PROGRAM, input_data], add_options={angr.options.LAZY_SOLVES, "BYPASS_UNSUPPORTED_SYSCALL"})
+```shell
+initial_state = proj.factory.entry_state(args=[PROGRAM, user_data]) 
+initial_state = proj.factory.entry_state(args=[PROGRAM, user_data], add_options={angr.options.LAZY_SOLVES})
+initial_state = proj.factory.entry_state(args=[PROGRAM, user_data], add_options={angr.options.LAZY_SOLVES, "BYPASS_UNSUPPORTED_SYSCALL"})
 ```
 
 ## Making a callable function can also be useful
 
-```
-start_func = p.loader.find_sybol("win_func").rebased_addr # find function address in binary
+```shell
+start_func = p.loader.find_symbol("win_func").rebased_addr # find function address in binary
 func = proj.factory.callable(start_func) # or use address
 func(args_go_here)
 initial_state = func.result_state
@@ -71,13 +71,13 @@ initial_state = func.result_state
 ### Increase length if we need more bytes for input/add constraints ###
 
 ### Default is 60
-```
+```shell
 if byte_length >= 60:
     initial_state.libc.buf_symbolic_bytes=byte_length + 1
 ```
 
 ### All input is in string.printable
-```
+```shell
 import string
 for i in range(USER_DATA_LENGTH):
     s.solver.add(
@@ -90,13 +90,13 @@ for i in range(USER_DATA_LENGTH):
 
 ## Can add more constraints for certain letters if you know the beginning
 
-```
+```shell
 initial_state.add_constraints(argv1.chop(8)[0] == 'C')
 ```
 
 
 ## Make sure none of the input bytes are NULL (May not be good if the given string is null terminated)
-```
+```shell
 for byte in input_data.chop(8):
     initial_state.add_constraints(byte != 0)
 ```
@@ -106,14 +106,14 @@ for byte in input_data.chop(8):
 >They track a group of states as the binary is executed, and allows for easier
 >management, pruning, and so forth of those states
 
-```
+```shell
 sm = proj.factory.simulation_manager(initial_state)
 sm = proj.factory.simulation_manager(initial_state, veritesting=True)
 ```
 
 ## There are several ways to run through the program ##
 
-```
+```shell
 # sm.run()
 
 # flag_locate = p.loader.find_symbol("win_func").rebased_addr
@@ -149,3 +149,11 @@ print(sm.found[0].posix.stdout.concretize())
 
 ### https://docs.angr.io/examples
 ### https://github.com/angr/angr-doc/blob/master/docs/more-examples.md
+
+## Optimization
+
+```shell
+# unicorn + veritesting
+s = p.factory.entry_state(add_options=angr.options.unicorn)
+sm = p.factory.simulation_manager(s, veritesting=True)
+```
