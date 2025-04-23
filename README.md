@@ -1,6 +1,32 @@
-# These are my notes about **ANGR** helper.
+# ANGR HELPER
 
-## Run angr 
+## INSTALLATION
+
+Here are my installation instructions using `pypy` for running angr.
+
+```shell
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+conda create -n angr # a clean environment
+conda activate angr
+conda install -c conda-forge pypy3.6
+wget https://bootstrap.pypa.io/get-pip.py
+pypy3 get-pip.py
+pypy3 -m pip install angr # then wait and have a rest
+conda install -c conda-forge ipython
+```
+
+## RUN ANGR
+
+To run angr, do the following commands.
+
+```shell
+conda activate angr
+pypy3 <file-name>
+```
+
+## USEFUL COMMANDS
+
 >[!NOTE]
 >Place this and binary in ./files/
 
