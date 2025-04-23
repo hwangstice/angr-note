@@ -27,13 +27,6 @@ pypy3 <file-name>
 
 ## USEFUL COMMANDS
 
->[!NOTE]
->Place this and binary in ./files/
-
-```shell
-sudo docker run -v "$(pwd)"/files:/mnt -it angr/angr
-```
-
 ### https://docs.angr.io/examples
 ### https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG
 
