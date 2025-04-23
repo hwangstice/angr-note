@@ -1,178 +1,218 @@
-# ANGR HELPER
+# ANGR Helper
 
-## INSTALLATION
+---
 
-Here are my installation instructions using `pypy` for running angr.
+## Installation
+
+To set up `angr` with `pypy` in a clean Conda environment, follow these steps:
 
 ```shell
+# Download and install Miniconda
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
-conda create -n angr # a clean environment
+
+# Create and activate a new Conda environment
+conda create -n angr
 conda activate angr
+
+# Install pypy and pip
 conda install -c conda-forge pypy3.6
 wget https://bootstrap.pypa.io/get-pip.py
 pypy3 get-pip.py
-pypy3 -m pip install angr # then wait and have a rest
+
+# Install angr (this may take some time)
+pypy3 -m pip install angr
+
+# Install ipython for an interactive shell
 conda install -c conda-forge ipython
 ```
 
-## RUN ANGR
+---
 
-To run angr, do the following commands.
+## Running ANGR
+
+To run an `angr` script, activate the environment and execute your script with `pypy3`:
 
 ```shell
 conda activate angr
-pypy3 <file-name>
+pypy3 <script_name>.py
 ```
 
-## USEFUL COMMANDS
+---
 
-### https://docs.angr.io/examples
-### https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG
+## Using ANGR
 
-```shell
+Below are essential commands and techniques for working with `angr`, including symbolic execution, state management, and constraint solving. Refer to the [official angr documentation](https://docs.angr.io/examples) and [angr YouTube tutorials](https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG) for more examples.
+
+### Basic Setup
+
+Start by importing the necessary libraries and defining the program to analyze:
+
+```python
 import angr
 import claripy
 import sys
 import logging
 
-PROGRAM = "./<program-name>"
+PROGRAM = "./<program_name>"
 ```
 
-## Change logging level to see where we get stuck 
-```shell
+### Adjust Logging
+
+To debug where execution gets stuck, set the logging level to `INFO`:
+
+```python
 logging.getLogger("angr").setLevel(logging.INFO)
 ```
 
-## Project to wrap the EXE. Maybe don't want to go into SO code
-### https://docs.angr.io/built-in-analyses/cfg#shared-libraries
+### Create a Project
 
-```shell
+Load the binary into an `angr` project. Use `auto_load_libs=False` to avoid loading shared libraries if not needed ([details](https://docs.angr.io/built-in-analyses/cfg#shared-libraries)):
+
+```python
 proj = angr.Project(PROGRAM)
 proj = angr.Project(PROGRAM, load_options={"auto_load_libs": False})
 ```
 
-## Creating a symbolic variable for input
+### Symbolic Input
 
-```shell
+Create a symbolic variable for user input (e.g., 32 bytes):
+
+```python
 USER_DATA_LENGTH = 32
 user_data = claripy.BVS("user_data", USER_DATA_LENGTH * 8)
 ```
 
-## Create a state for the simulation manager
-### https://docs.angr.io/appendix/options#options
+### Initialize State
 
-### stdin
+Set up the initial state for simulation, either via `stdin` or `argv`. Use options like `LAZY_SOLVES` or `BYPASS_UNSUPPORTED_SYSCALL` for optimization ([options reference](https://docs.angr.io/appendix/options#options)):
 
-```shell
-initial_state = proj.factory.entry_state(stdin=user_data) 
+```python
+# stdin
+initial_state = proj.factory.entry_state(stdin=user_data)
+
+# argv
+initial_state = proj.factory.entry_state(args=[PROGRAM, user_data])
+initial_state = proj.factory.entry_state(
+    args=[PROGRAM, user_data],
+    add_options={angr.options.LAZY_SOLVES, "BYPASS_UNSUPPORTED_SYSCALL"}
+)
 ```
 
-### argv1
+### Callable Functions
 
-```shell
-initial_state = proj.factory.entry_state(args=[PROGRAM, user_data]) 
-initial_state = proj.factory.entry_state(args=[PROGRAM, user_data], add_options={angr.options.LAZY_SOLVES})
-initial_state = proj.factory.entry_state(args=[PROGRAM, user_data], add_options={angr.options.LAZY_SOLVES, "BYPASS_UNSUPPORTED_SYSCALL"})
-```
+To analyze a specific function, find its address and create a callable:
 
-## Making a callable function can also be useful
-
-```shell
-start_func = p.loader.find_symbol("win_func").rebased_addr # find function address in binary
-func = proj.factory.callable(start_func) # or use address
-func(args_go_here)
+```python
+start_func = proj.loader.find_symbol("win_func").rebased_addr
+func = proj.factory.callable(start_func)
+func(<args>)
 initial_state = func.result_state
 ```
 
-## Now you can cheeck stdin, stdout, etc
+### Input Constraints
 
-### Increase length if we need more bytes for input/add constraints ###
+Add constraints to ensure valid input. For example, restrict input to printable characters or specific values:
 
-### Default is 60
-```shell
-if byte_length >= 60:
-    initial_state.libc.buf_symbolic_bytes=byte_length + 1
-```
-
-### All input is in string.printable
-```shell
+```python
 import string
+
+# Ensure input is printable
 for i in range(USER_DATA_LENGTH):
-    s.solver.add(
+    initial_state.solver.add(
         claripy.Or(*(
-            user_data.get_byte(i) == x 
-            for x in printable.encode('utf-8')  
+            user_data.get_byte(i) == x
+            for x in string.printable.encode('utf-8')
         ))
     )
+
+# Specific character constraint (e.g., starts with 'C')
+initial_state.solver.add(user_data.chop(8)[0] == 'C')
+
+# No NULL bytes (unless null-terminated strings are expected)
+for byte in user_data.chop(8):
+    initial_state.solver.add(byte != 0)
 ```
 
-## Can add more constraints for certain letters if you know the beginning
+### Buffer Size
 
-```shell
-initial_state.add_constraints(argv1.chop(8)[0] == 'C')
+Increase the symbolic buffer size if more input bytes are needed (default is 60):
+
+```python
+byte_length = 64
+if byte_length >= 60:
+    initial_state.libc.buf_symbolic_bytes = byte_length + 1
 ```
 
+### Simulation Manager
 
-## Make sure none of the input bytes are NULL (May not be good if the given string is null terminated)
-```shell
-for byte in input_data.chop(8):
-    initial_state.add_constraints(byte != 0)
-```
+The simulation manager tracks states during symbolic execution, allowing pruning and exploration ([details](https://docs.angr.io/core-concepts/analyses#simulation-managers)):
 
-## Create simulation manager ##
->Simulation managers are a basic building block of the symbolic execution engine.<br>
->They track a group of states as the binary is executed, and allows for easier
->management, pruning, and so forth of those states
-
-```shell
+```python
 sm = proj.factory.simulation_manager(initial_state)
 sm = proj.factory.simulation_manager(initial_state, veritesting=True)
 ```
 
-## There are several ways to run through the program ##
+### Exploration Strategies
 
-```shell
-# sm.run()
+Explore the binary to find desired states (e.g., a "win" function or specific output). Use `find` and `avoid` to guide execution:
 
-# flag_locate = p.loader.find_symbol("win_func").rebased_addr
-# sm.explore(find=flag_locate, avoid=0x00000)
+```python
+# Basic exploration
+sm.run()
 
-# Can also have lists for arguments
+# Explore to a specific function address
+flag_locate = proj.loader.find_symbol("win_func").rebased_addr
+sm.explore(find=flag_locate, avoid=0x00000)
+
+# Explore by address
 sm.explore(find=0x400830, avoid=0x400850)
 
-# found this for looking for string printout messages: https://pwndiary.com/0ctf-2020-happytree
+# Explore based on output (e.g., "Success!" in stdout)
 sm.explore(
-        find=lambda s: b"Success!" in s.posix.dumps(1),
-        avoid=lambda s: b"Failure!" in s.posix.dumps(1),
-        step_func=lambda lsm: lsm.drop(stash='avoid'))
+    find=lambda s: b"Success!" in s.posix.dumps(1),
+    avoid=lambda s: b"Failure!" in s.posix.dumps(1),
+    step_func=lambda lsm: lsm.drop(stash='avoid')
+)
 
-# Here's an example of breaking up a big problem into smaller ones
+# Break exploration into stages
 sm.explore(find=0x4016A3).unstash(from_stash='found', to_stash='active')
 sm.explore(find=0x4016B7, avoid=[0x4017D6, 0x401699, 0x40167D]).unstash(from_stash='found', to_stash='active')
 sm.explore(find=0x4017CF, avoid=[0x4017D6, 0x401699, 0x40167D]).unstash(from_stash='found', to_stash='active')
 sm.explore(find=0x401825, avoid=[0x401811])
-
-# might be more items in list, so check
-print(len(sm.found))
-found = sm.found[0]
-print(found)
-solution = found.solver.eval(input_data, cast_to=bytes)
-print(solution)
-# solution = solution[:solution.find(b"}")+1] # Trim off the null bytes at the end of the flag (if any).
-
-print(sm.found)
-print(sm.found[0].posix.stdin.concretize())
-print(sm.found[0].posix.stdout.concretize())
 ```
 
-### https://docs.angr.io/examples
-### https://github.com/angr/angr-doc/blob/master/docs/more-examples.md
+### Extract Results
 
-## Optimization
+Once a solution is found, extract and print the input:
 
-```shell
-# unicorn + veritesting
-s = p.factory.entry_state(add_options=angr.options.unicorn)
-sm = p.factory.simulation_manager(s, veritesting=True)
+```python
+if sm.found:
+    found = sm.found[0]
+    solution = found.solver.eval(user_data, cast_to=bytes)
+    print(f"Solution: {solution}")
+
+    # Inspect stdin/stdout
+    print(f"Stdin: {found.posix.stdin.concretize()}")
+    print(f"Stdout: {found.posix.stdout.concretize()}")
 ```
+
+---
+
+## Optimization Tips
+
+For faster execution, enable `unicorn` and `veritesting`:
+
+```python
+initial_state = proj.factory.entry_state(add_options=angr.options.unicorn)
+sm = proj.factory.simulation_manager(initial_state, veritesting=True)
+```
+
+---
+
+## Additional Resources
+
+- [angr Documentation: Examples](https://docs.angr.io/examples)
+- [angr GitHub: More Examples](https://github.com/angr/angr-doc/blob/master/docs/more-examples.md)
+- [angr YouTube Playlist](https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG)
+- [PwnDiary: HappyTree Example](https://pwndiary.com/0ctf-2020-happytree)
