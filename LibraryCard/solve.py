@@ -25,7 +25,7 @@ if not print_flag:
 
 print(print_flag.result_state.posix.stdout.concretize())
 
-# Run hook
-hook(locals())
+# Debug purpose only
+# hook(locals())
 
 
