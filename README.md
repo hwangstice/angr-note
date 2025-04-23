@@ -1,7 +1,5 @@
 # ANGR Helper
 
----
-
 ## Installation
 
 To set up `angr` with `pypy` in a clean Conda environment, follow these steps:
@@ -37,8 +35,6 @@ To run an `angr` script, activate the environment and execute your script with `
 conda activate angr
 pypy3 <script_name>.py
 ```
-
----
 
 ## Using ANGR
 
@@ -207,8 +203,6 @@ For faster execution, enable `unicorn` and `veritesting`:
 initial_state = proj.factory.entry_state(add_options=angr.options.unicorn)
 sm = proj.factory.simulation_manager(initial_state, veritesting=True)
 ```
-
----
 
 ## Additional Resources
 
