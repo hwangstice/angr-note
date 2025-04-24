@@ -176,6 +176,18 @@ sm.explore(find=0x4017CF, avoid=[0x4017D6, 0x401699, 0x40167D]).unstash(from_sta
 sm.explore(find=0x401825, avoid=[0x401811])
 ```
 
+### Custom State Checkers
+
+These functions are useful when the program's success or failure is indicated by specific messages:
+
+```python
+def is_success(state):
+    return b"<success-message>" in state.posix.dumps(sys.stdout.fileno())
+
+def is_fail(state):
+    return b"<failure-message>" in state.posix.dumps(sys.stdout.fileno())
+```
+
 ### Extract Results
 
 Once a solution is found, extract and print the input:
@@ -195,9 +207,13 @@ if sm.found:
 
 For faster execution, enable `unicorn` and `veritesting`:
 
+- **Unicorn** when lots of math and loops
+- **Lazy Solve** when lots of conditional branching
+- **Veritesting** when many similar if-else paths
+
 ```python
-initial_state = proj.factory.entry_state(add_options=angr.options.unicorn)
-sm = proj.factory.simulation_manager(initial_state, veritesting=True)
+init_state = proj.factory.entry_state(add_options={angr.options.UNICORN, angr.options.LAZY_SOLVES})
+simulation = proj.factory.simgr(init_state, veritesting=True)
 ```
 
 ## Additional Resources
