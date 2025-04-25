@@ -220,5 +220,6 @@ simulation = proj.factory.simgr(init_state, veritesting=True)
 
 - [angr Documentation: Examples](https://docs.angr.io/examples)
 - [angr GitHub: More Examples](https://github.com/angr/angr-doc/blob/master/docs/more-examples.md)
+- [ANGR API Reference](https://docs.angr.io/en/latest/api.html)
 - [angr YouTube Playlist](https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG)
 - [PwnDiary: HappyTree Example](https://pwndiary.com/0ctf-2020-happytree)
