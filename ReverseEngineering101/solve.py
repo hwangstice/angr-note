@@ -1,9 +1,36 @@
-import angr
+import angr 
+import logging 
 
-p = angr.Project("./RE101")
-sm = p.factory.simulation_manager()
-sm.step()
+logging.getLogger('angr').setLevel(logging.INFO)
 
-# After passing through the start entry -> read mem from specific address of edata
-s = sm.active[0]
-print(s.mem[0x804911A].string.concrete)
+def hook(l=None):
+    if l:
+        locals().update(l)
+    import IPython
+    IPython.embed(banner1='', exit_msg='', confirm_exit=False)
+    exit(0)
+
+def main():
+    proj = angr.Project("./RE101")
+
+    # Prepare simulation
+    start_addr = 0x080480B8
+    init_state = proj.factory.blank_state(addr=start_addr)
+
+    # We only do one step, because our program starts at "_start"
+    # and the flag is stored in a variable.
+    # We just need to make one step, to make sure that variable has the value
+    # Then read the value from that variable
+    simulation = proj.factory.simgr(init_state)
+    simulation.step()
+
+    if not simulation.active:
+        print("NOT FOUND")
+        hook(locals())
+
+    # Find flag
+    flag = simulation.active[0].mem[0x0804911A].string.concrete
+    print("Flag: ", flag)
+
+if __name__=="__main__":
+    main()
