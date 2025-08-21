@@ -6,7 +6,7 @@ Many thanks to these two fantastic tutorials helping me a lot in my first steps 
 - [angr_ctf](https://github.com/jakespringer/angr_ctf)
 - [angr Tutorials (Youtube playlist)](https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG)
 
-You can view detailed explanation here &#x2192; <a href="https://dathwang.github.io/blog/angr-note/" target="_blank">angr-note</a>
+You can view detailed explanation here &#x2192; <a href="https://hwangstice.github.io/blog/angr-note/" target="_blank">angr-note</a>
 
 Also check out my [angr_helper](./angr_helper.md), which may help you get familiar with **angr** instructions.
 
