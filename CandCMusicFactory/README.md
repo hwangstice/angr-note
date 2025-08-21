@@ -85,7 +85,8 @@ unsigned __int64 libc_csu_init_()
   }
   else
   {
-    puts("Failed to load libmusiclibrary");
+
+ puts("Failed to load libmusiclibrary");
   }
   return __readfsqword(0x28u) ^ v8;
 }
@@ -109,3 +110,54 @@ if ( handle )
 Let's extract and get that shared object lirbary.
 
 ## Shared Object Library `/tmp/libmusiclibrary.so`
+
+Before that, I need to create the binary `music_factory` in `tmp` folder.
+
+```
+❯ cp music_factory /tmp
+```
+
+To get `/tmp/libmusiclibrary.so`, I use `gdb` to examine the behaviour of the program.
+
+```shell
+❯ gdb music_factory
+...
+(gdb) set pagination off
+(gdb) set disassembly-flavor intel
+(gdb) b libc_csu_init_
+Breakpoint 1 at 0xb63
+(gdb) r
+Starting program: /mnt/d/Github/angr-note/CandCMusicFactory/music_factory
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, 0x0000555555400b63 in libc_csu_init_ ()
+```
+
+After successfully entering `libc_csu_init_` function. I add a breakpoint after `fclose` like in the following picture, where the `/tmp/libmusiclibrary.so` is ready.
+
+<img width="944" height="649" alt="image" src="https://github.com/user-attachments/assets/519a4b48-2da9-4c1f-afeb-cc2ac9f396ff" />
+
+<img width="933" height="393" alt="image" src="https://github.com/user-attachments/assets/0b758324-8670-4e13-a51e-8cefb3b1d77a" />
+
+&rarr; So the offset is `0xCD2`.
+
+However, the process terminates immediately.
+
+```
+(gdb) b * 0x0000555555400cd2
+Breakpoint 2 at 0x555555400cd2
+(gdb) c
+Continuing.
+[Inferior 1 (process 4140) exited with code 0377]
+```
+
+In the **Description**, it states that the binary is a form of **malware**. This means there must be **an anti-debug technique**.
+
+Luckily enough, I easily find it out from the pseudo-code of `libc_csu_init_` function.
+
+```c
+  v8 = __readfsqword(0x28u);
+  if ( ptrace(PTRACE_TRACEME, 0, 1, 0) == -1 )
+    exit(-1);
+```
