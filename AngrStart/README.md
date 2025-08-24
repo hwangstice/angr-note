@@ -8,7 +8,7 @@ My idea is that I start from the instruction `lea rax, [rbp+s]`, and simulate th
 
 <img width="336" height="187" alt="image" src="https://github.com/user-attachments/assets/05f23db1-6161-4baf-bacf-104fed2497f2" />
 
-Here the instruciton `lea rax, [rbpp+s]` is at address `0x41A378`
+Here, the instruciton `lea rax, [rbp+s]` is at address `0x41A378`
 
 <img width="961" height="141" alt="image" src="https://github.com/user-attachments/assets/f839107e-5daf-420e-8ae9-d5a16294a2b4" />
 
