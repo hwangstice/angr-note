@@ -11,14 +11,24 @@ def hook(l=None):
     IPython.embed(banner1='', exit_msg='', confirm_exit=False)
     exit(0)
 
+# Start address
+start_addr = 0x1A561
 proj = angr.Project("./chall", main_opts={'base_addr': 0x0}) 
 
 init_state = proj.factory.entry_state(
+    addr=start_addr,
     add_options={
         angr.options.LAZY_SOLVES,
         angr.options.UNICORN
     }
 )
+
+# Symbolic variable "buffer"
+size = 0x10
+password = claripy.BVS("password", size*8)
+
+buffer_addr = 0x1D060
+init_state.memory.store(buffer_addr, password)
 
 # Hook path_explosion_loop
 def PathExplosionHook(state):
@@ -40,10 +50,10 @@ proj.hook(addr=addr_to_hook, hook=PathExplosionHook, length=5)
 
 # Simulation manager
 simgr = proj.factory.simgr(init_state)
-simgr.explore(find=0x1A594, avoid=[0x1A57E, 0x1A54B])
+simgr.explore(find=0x1A594, avoid=0x1A57E)
 
 if not simgr.found:
     print("Not found")
     hook(locals())
 
-print(simgr.found[0].posix.stdin.concretize())
+print(simgr.found[0].solver.eval(password, cast_to=bytes))
