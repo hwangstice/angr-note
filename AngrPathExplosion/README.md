@@ -180,7 +180,7 @@ addr_to_hook = 0x1A4D9
 proj.hook(addr=addr_to_hook, hook=PathExplosionHook, length=5)
 ```
 
-Just run the script [here](./AngrPathExplosion/solve.py), and get the password!
+Just run the script [here](./solve.py), and get the password!
 
 <img width="287" height="38" alt="image" src="https://github.com/user-attachments/assets/dd6ed8d4-7d78-4b21-842c-7457ec18fbe3" />
 
