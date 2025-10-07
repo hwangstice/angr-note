@@ -18,7 +18,7 @@ start_addr = 0x4001C0
 init_state = proj.factory.blank_state(addr=start_addr)
 
 # Store input
-input = claripy.BVV("root-me.org")
+input = claripy.BVV("root-me.org\n")
 init_state.memory.store(0x600260, input)
 
 # Simulation manager
