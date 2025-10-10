@@ -175,6 +175,7 @@ proj.hook(addr=addr_to_hook, hook=DoGlobalCtorsAuxHook, length=0x40120A-addr_to_
 
 Since the function `__do_global_ctors_aux` is not called from `_start`, so I have to call the hook after `entry_state`, `full_init_state`.
 
+<img width="1792" height="741" alt="image" src="https://github.com/user-attachments/assets/af0053a7-329d-4db7-9ca3-304d216ccdbb" />
 
 
 In `full_init_state`, it calls from `_start`, and all others shared libraries...
