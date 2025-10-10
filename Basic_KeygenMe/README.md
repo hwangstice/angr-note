@@ -203,7 +203,3 @@ Let's get the the **SHA256**.
 <img width="2040" height="737" alt="image" src="https://github.com/user-attachments/assets/bf62352e-4347-44e2-8bad-04087f12c2b9" />
 
 SHA256: `5c58dde9f9c213485fb1863492e0760d0427809eb88aaec06100f64add822c26`
-
-<img width="2080" height="565" alt="image" src="https://github.com/user-attachments/assets/00df6327-2b6e-4e44-9a1f-a196aeb0d0d3" />
-
-
