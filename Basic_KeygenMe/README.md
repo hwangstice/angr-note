@@ -1,9 +1,3 @@
-## TL;DR 
-
-This is a **Cracking** challenge from **Root Me**.
-
-Here is the link to challenge: https://www.root-me.org/en/Challenges/Cracking/ELF-x64-Basic-KeygenMe
-
 ## Description
 
 ```
