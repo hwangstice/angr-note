@@ -1,14 +1,16 @@
 ## ANGR Note
 
-**angr** is a great binary analysis framework that has saved me a lot of time during CTFs. Initially, **angr** gave me a really hard-core impression, but ***"practice makes perfect"***. When exploring it deeper, I am even more motivated and create this repo to document my journey. 
+Personal notes and examples while learning the **angr** binary analysis framework.
+
+**angr** is a powerful Python framework for binary analysis and symbolic execution. This repository documents my journey from finding angr intimidating to using it effectively in CTF challenges and reverse engineering tasks.
 
 Many thanks to these two fantastic tutorials helping me a lot in my first steps into **angr**.
 - [angr_ctf](https://github.com/jakespringer/angr_ctf)
 - [angr Tutorials (Youtube playlist)](https://www.youtube.com/playlist?list=PL-nPhof8EyrGKytps3g582KNiJyIAOtBG)
 
-You can view detailed explanation here &#x2192; <a href="https://hwangstice.github.io/blog/angr-note/" target="_blank">angr-note</a>
+Detailed challenge writeups (many in this repo + lots more here) &#x2192; <a href="https://hwangstice.github.io/blog/angr-note/" target="_blank">angr-note</a>
 
-Also check out my [angr_helper](./angr_helper.md), which may help you get familiar with **angr** instructions.
+Also check out my [angr_helper.md](./angr_helper.md) to help you get familiar with **angr** commands.
 
 ## Installation
 
